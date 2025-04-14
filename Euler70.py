@@ -77,17 +77,18 @@ def get_prime_factors(n):
     return res
 
 
-lim = 1e7
-generate_primes_until(sqrt(lim))
+if __name__ == "__main__":
+    lim = 1e7
+    generate_primes_until(sqrt(lim))
 
-mn = float("inf")
-for n in range(int(lim), 1, -1):
-    try:
-        pf = get_prime_factors(n)
-    except PrimeException:
-        continue
-    m = get_count_relative_primes(n, pf)
-    if Counter(str(n)) == Counter(str(m)):
-        if n / m < mn:
-            print(n, m, n / m)
-            mn = n / m
+    mn = float("inf")
+    for n in range(int(lim), 1, -1):
+        try:
+            pf = get_prime_factors(n)
+        except PrimeException:
+            continue
+        m = get_count_relative_primes(n, pf)
+        if Counter(str(n)) == Counter(str(m)):
+            if n / m < mn:
+                print(n, m, n / m)
+                mn = n / m
