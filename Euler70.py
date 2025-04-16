@@ -6,8 +6,10 @@ prime_flags = 0b11
 prime_last_checked = 3
 
 
-def primes(safe=True):
+def primes(safe=True, throw_exception=False):
     for i in count():
+        if i > prime_last_checked and throw_exception:
+            raise PrimeException()
         if safe and i > prime_last_checked:
             return
         if (prime_flags >> i) & 1 == 0:
