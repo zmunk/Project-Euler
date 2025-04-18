@@ -4,8 +4,16 @@ from queue import Queue
 
 INF = float("inf")
 
+example_cells = [
+    [131, 673, 234, 103, 18],
+    [201, 96, 342, 965, 150],
+    [630, 803, 746, 422, 111],
+    [537, 699, 497, 121, 956],
+    [805, 732, 524, 37, 331],
+]
 
-def get_neighbors(row, col):
+
+def get_neighbors(row, col, n_rows, n_cols):
     if row > 0:
         yield row - 1, col
     if col > 0:
@@ -20,10 +28,10 @@ def cyan_bold(s):
     return f"\033[1;36m{s}\033[0m"
 
 
-def show_grid(queue):
+def show_grid(queue, n_rows, n_cols):
     """
     e.g.
-    to_process = show_grid(to_process)
+    to_process = show_grid(to_process, n_rows, n_cols)
     """
     highlight = set()
     temp = Queue()
@@ -46,36 +54,38 @@ def show_grid(queue):
 
 
 def main(cells):
-    global n_rows, n_cols
-    to_process = Queue()
     n_rows, n_cols = len(cells), len(cells[0])
-    grid = [[INF] * n_cols for _ in range(n_rows)]
+    initial_cells = [(i, 0) for i in range(n_rows)]
+    min_vals = get_minimal_values(cells, initial_cells, n_rows, n_cols)
+    return min(map(itemgetter(-1), min_vals))
 
-    for i in range(n_rows):
-        to_process.put((cells[i][0], (i, 0)))
+
+def get_minimal_values(cells, initial_cells, n_rows, n_cols, verbose=0):
+    grid = [[INF] * n_cols for _ in range(n_rows)]
+    to_process = Queue()
+    for row, col in initial_cells:
+        to_process.put((cells[row][col], (row, col)))
 
     while not to_process.empty():
         val, (row, col) = to_process.get()
         if val < grid[row][col]:
             grid[row][col] = val
-            for orow, ocol in get_neighbors(row, col):
+            for orow, ocol in get_neighbors(row, col, n_rows, n_cols):
                 oval = cells[orow][ocol]
                 to_process.put((val + oval, (orow, ocol)))
 
-    return min(map(itemgetter(-1), grid))
+        if verbose > 0:
+            to_process = show_grid(to_process, n_rows, n_cols)
+            sleep(0.1)
+
+    return grid
 
 
 if __name__ == "__main__":
-    cells = [
-        [131, 673, 234, 103, 18],
-        [201, 96, 342, 965, 150],
-        [630, 803, 746, 422, 111],
-        [537, 699, 497, 121, 956],
-        [805, 732, 524, 37, 331],
-    ]
-    assert main(cells) == 994
+    assert main(example_cells) == 994
 
     cells = []
     for line in open("input/0082_matrix.txt").read().strip().split():
         cells.append(list(map(int, line.split(","))))
-    print(main(cells))
+    assert main(cells) == 260324
+    print("done")
